@@ -1,5 +1,7 @@
 package com.lolfit.backend.auth;
 
+import com.lolfit.backend.auth.dto.AuthResponse;
+import com.lolfit.backend.auth.dto.LoginRequest;
 import com.lolfit.backend.auth.dto.RegisterRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,9 +14,15 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/register")
-    public ResponseEntity<String> register(
+    public ResponseEntity<AuthResponse> register(
             @RequestBody RegisterRequest request) {
-        authService.register(request);
-        return ResponseEntity.ok("Utilisateur enregistré avec succès");
+        AuthResponse response = authService.register(request);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request) {
+        AuthResponse response = authService.login(request);
+        return ResponseEntity.ok(response);
     }
 }
