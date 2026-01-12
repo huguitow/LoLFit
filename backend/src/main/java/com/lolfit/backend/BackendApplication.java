@@ -25,4 +25,17 @@ public class BackendApplication {
 			}
 		};
 	}
+
+	/*
+	 * @Bean
+	 * public CommandLineRunner runSync(RiotService riotService) {
+	 * return args -> {
+	 * try {
+	 * riotService.syncChampions();
+	 * } catch (Exception e) {
+	 * e.printStackTrace();
+	 * }
+	 * };
+	 * }
+	 */
 }
