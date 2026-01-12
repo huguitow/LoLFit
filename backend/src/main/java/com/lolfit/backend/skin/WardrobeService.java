@@ -2,10 +2,12 @@ package com.lolfit.backend.skin;
 
 import org.springframework.stereotype.Service;
 import com.lolfit.backend.skin.dto.AddSkinRequest;
+import com.lolfit.backend.skin.dto.WardrobeResponse;
 import com.lolfit.backend.user.User;
 import com.lolfit.backend.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -31,5 +33,26 @@ public class WardrobeService {
                 .build();
 
         wardrobeRepository.save(entry);
+
+    }
+
+    public List<WardrobeResponse> getUserWardrobe(String userEmail) {
+
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        List<Wardrobe> wardrobeEntries = wardrobeRepository.findByUserId(user.getId());
+
+        return wardrobeEntries.stream()
+                .map(entry -> WardrobeResponse.builder()
+                        .id(entry.getId())
+                        .skinId(entry.getSkin().getId())
+                        .skinName(entry.getSkin().getName())
+                        .championName(entry.getSkin().getChampion().getName())
+                        .imageUrl(entry.getSkin().getImageUrl())
+                        .obtainedAt(entry.getObtainedAt())
+                        .isFavorite(entry.getIsFavorite())
+                        .build())
+                .toList();
     }
 }
