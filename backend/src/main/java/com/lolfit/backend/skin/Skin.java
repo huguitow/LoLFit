@@ -2,6 +2,7 @@ package com.lolfit.backend.skin;
 
 import jakarta.persistence.*;
 import lombok.*;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -35,5 +36,6 @@ public class Skin {
 
     @ManyToOne
     @JoinColumn(name = "champion_id", nullable = false)
+    @JsonBackReference
     private Champion champion;
 }

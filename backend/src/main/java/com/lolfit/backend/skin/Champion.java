@@ -2,6 +2,7 @@ package com.lolfit.backend.skin;
 
 import jakarta.persistence.*;
 import lombok.*;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import java.time.LocalDateTime;
 import java.util.Set;
 
@@ -32,6 +33,7 @@ public class Champion {
     private LocalDateTime createdAt;
 
     @OneToMany(mappedBy = "champion")
+    @JsonManagedReference
     private Set<Skin> skins;
 
     @PrePersist
