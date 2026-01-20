@@ -25,7 +25,6 @@ public class BackendApplication {
 			}
 		};
 	}
-
 	/*
 	 * @Bean
 	 * public CommandLineRunner runSync(RiotService riotService) {
@@ -37,5 +36,4 @@ public class BackendApplication {
 	 * }
 	 * };
 	 * }
-	 */
-}
+	 */}

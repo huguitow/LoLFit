@@ -4,7 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import java.time.LocalDateTime;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Data
@@ -34,7 +35,7 @@ public class Champion {
 
     @OneToMany(mappedBy = "champion")
     @JsonManagedReference
-    private Set<Skin> skins;
+    private List<Skin> skins = new ArrayList<>();
 
     @PrePersist
     void onCreate() {

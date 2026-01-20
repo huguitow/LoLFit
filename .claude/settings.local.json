@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl:*)",
+      "Bash(./mvnw.cmd clean compile:*)",
+      "Bash(./mvnw.cmd compile:*)",
+      "Bash(./mvnw.cmd spring-boot:run:*)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "Bash(taskkill:*)"
+    ]
+  }
+}
