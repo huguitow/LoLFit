@@ -87,6 +87,8 @@
 <style scoped>
     .champion-detail {
         padding: 20px;
+        justify-content: center;
+        align-items: center;
     }
 
     .loading, .error {
@@ -104,6 +106,8 @@
         flex-wrap: wrap;
         gap: 20px;
         margin-top: 20px;
+        justify-content: center;
+        align-items: center;
     }
 
     .skin-card {
@@ -112,11 +116,14 @@
         border-radius: 8px;
         padding: 10px;
         text-align: center;
+        justify-content: center;
     }
 
     .skin-card img {
         width: 100%;
         border-radius: 4px;
+        justify-content: center;
+        align-items: center;
     }
 
     .skin-name {
