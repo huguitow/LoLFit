@@ -33,45 +33,149 @@
 </script>
 
 <template>
-        <h1>Champions</h1>
-    <p>Voici la liste des champions !</p>
-    <div class="champions-container">
-        <div v-for="champion in champions" :key="champion.id" class="champion-card" @click="goToChampion(champion.id)">
-            <img :src="champion.imageUrl" alt="">
-            <p class="champion-name">{{ champion.name }}</p>
+    <v-container fluid class="pa-6">
+        <div class="text-center mb-8">
+            <h1 class="text-h3 font-weight-bold text-gradient mb-2">Champions</h1>
+            <p class="text-body-1 text-medium-emphasis">Sélectionne un champion pour découvrir ses skins</p>
         </div>
-    </div>
+
+        <v-row justify="center">
+            <v-col
+                v-for="champion in champions"
+                :key="champion.id"
+                cols="6"
+                sm="4"
+                md="3"
+                lg="2"
+                xl="2"
+            >
+                <v-lazy
+                    :min-height="200"
+                    :options="{ threshold: 0.1 }"
+                    transition="fade-transition"
+                >
+                    <v-card
+                        class="champion-card"
+                        @click="goToChampion(champion.id)"
+                    >
+                        <div class="card-image-container">
+                            <v-img
+                                :src="champion.imageUrl"
+                                :alt="champion.name"
+                                class="card-image"
+                            >
+                                <template v-slot:placeholder>
+                                    <div class="d-flex align-center justify-center fill-height">
+                                        <v-progress-circular indeterminate color="primary" />
+                                    </div>
+                                </template>
+                            </v-img>
+                            <div class="card-overlay"></div>
+                            <div class="card-content">
+                                <h3 class="champion-name">{{ champion.name }}</h3>
+                            </div>
+                            <div class="card-glow"></div>
+                        </div>
+                    </v-card>
+                </v-lazy>
+            </v-col>
+        </v-row>
+    </v-container>
 </template>
 
 <style scoped>
-    .champions-container {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 20px;
+    .text-gradient {
+        background: linear-gradient(135deg, #c9aa71 0%, #f0e6d3 50%, #c9aa71 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
     }
 
     .champion-card {
-        width: 200px;
-        border: 1px solid #ccc;
-        border-radius: 8px;
-        padding: 10px;
-        text-align: center;
         cursor: pointer;
-        transition: transform 0.2s;
+        border-radius: 12px;
+        overflow: hidden;
+        background: transparent;
+        transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+        border: 1px solid rgba(201, 170, 113, 0.2);
     }
 
     .champion-card:hover {
-        transform: scale(1.05);
+        transform: translateY(-8px) scale(1.02);
+        border-color: rgba(201, 170, 113, 0.6);
+        box-shadow:
+            0 20px 40px rgba(0, 0, 0, 0.4),
+            0 0 30px rgba(201, 170, 113, 0.2);
     }
 
-    .champion-card img {
-        width: 100%;
-        border-radius: 4px;
+    .card-image-container {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .card-image {
+        transition: transform 0.5s ease;
+    }
+
+    .champion-card:hover .card-image {
+        transform: scale(1.1);
+    }
+
+    .card-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 60%;
+        background: linear-gradient(
+            to top,
+            rgba(0, 0, 0, 0.9) 0%,
+            rgba(0, 0, 0, 0.6) 40%,
+            transparent 100%
+        );
+        pointer-events: none;
+    }
+
+    .card-content {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 16px;
+        text-align: center;
     }
 
     .champion-name {
-        font-weight: bold;
-        margin: 10px 0 5px 0;
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #fff;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        letter-spacing: 0.5px;
+        transition: color 0.3s ease;
+    }
+
+    .champion-card:hover .champion-name {
+        color: #c9aa71;
+    }
+
+    .card-glow {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        opacity: 0;
+        background: linear-gradient(
+            135deg,
+            rgba(201, 170, 113, 0.1) 0%,
+            transparent 50%,
+            rgba(201, 170, 113, 0.1) 100%
+        );
+        transition: opacity 0.4s ease;
+        pointer-events: none;
+    }
+
+    .champion-card:hover .card-glow {
+        opacity: 1;
     }
 </style>

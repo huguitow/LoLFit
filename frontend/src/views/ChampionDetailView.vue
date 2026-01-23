@@ -1,5 +1,5 @@
 <script setup>
-    import { ref, onMounted } from 'vue'
+    import { ref, reactive, onMounted } from 'vue'
     import { useRoute } from 'vue-router'
     import { useAuthStore } from '../stores/auth'
 
@@ -9,6 +9,13 @@
     const champion = ref(null)
     const loading = ref(true)
     const error = ref(null)
+
+    // Snackbar state
+    const snackbar = reactive({
+        show: false,
+        message: '',
+        color: 'success'
+    })
 
     onMounted(() => {
         fetchChampionDetails()
@@ -50,98 +57,250 @@
             })
 
             if (response.ok) {
-                alert('Skin ajouté à votre garde-robe !')
+                snackbar.message = 'Skin ajouté à votre garde-robe !'
+                snackbar.color = 'success'
+                snackbar.show = true
             } else {
-                alert('Erreur lors de l\'ajout du skin')
+                snackbar.message = 'Erreur lors de l\'ajout du skin'
+                snackbar.color = 'error'
+                snackbar.show = true
             }
         } catch (err) {
             console.error('Erreur lors de l\'ajout à la garde-robe :', err)
-            alert('Erreur lors de l\'ajout du skin')
+            snackbar.message = 'Erreur lors de l\'ajout du skin'
+            snackbar.color = 'error'
+            snackbar.show = true
         }
     }
 </script>
 
 <template>
-    <div class="champion-detail">
-        <div v-if="loading" class="loading">Chargement...</div>
-
-        <div v-else-if="error" class="error">{{ error }}</div>
-
-        <div v-else-if="champion">
-            <h1>{{ champion.name }}</h1>
-            <p>{{ champion.skins?.length || 0 }} skins disponibles</p>
-
-            <div class="skins-grid">
-                <div v-for="skin in champion.skins" :key="skin.id" class="skin-card">
-                    <img :src="skin.imageUrl" :alt="skin.name">
-                    <p class="skin-name">{{ skin.name }}</p>
-                    <button @click="addToWardrobe(skin.id)" class="add-btn">
-                        Ajouter à ma garde-robe
-                    </button>
-                </div>
+    <v-container fluid class="pa-6">
+        <!-- Loading state -->
+        <div v-if="loading" class="d-flex justify-center align-center" style="min-height: 400px;">
+            <div class="text-center">
+                <v-progress-circular
+                    indeterminate
+                    color="primary"
+                    size="80"
+                    width="6"
+                />
+                <p class="text-body-1 mt-4 text-medium-emphasis">Chargement des skins...</p>
             </div>
         </div>
-    </div>
+
+        <!-- Error state -->
+        <v-alert
+            v-else-if="error"
+            type="error"
+            variant="tonal"
+            class="mb-4"
+            border="start"
+            prominent
+        >
+            <template v-slot:prepend>
+                <v-icon size="large">mdi-alert-circle</v-icon>
+            </template>
+            {{ error }}
+        </v-alert>
+
+        <!-- Champion details -->
+        <div v-else-if="champion">
+            <div class="text-center mb-8">
+                <h1 class="text-h3 font-weight-bold text-gradient mb-3">{{ champion.name }}</h1>
+                <v-chip
+                    color="primary"
+                    variant="elevated"
+                    size="large"
+                    class="px-4"
+                    prepend-icon="mdi-hanger"
+                >
+                    {{ champion.skins?.length || 0 }} skins disponibles
+                </v-chip>
+            </div>
+
+            <v-row justify="center">
+                <v-col
+                    v-for="skin in champion.skins"
+                    :key="skin.id"
+                    cols="12"
+                    sm="6"
+                    md="4"
+                    lg="3"
+                    xl="2"
+                >
+                    <v-lazy
+                        :min-height="300"
+                        :options="{ threshold: 0.1 }"
+                        transition="fade-transition"
+                    >
+                        <v-card class="skin-card">
+                            <div class="card-image-container">
+                                <v-img
+                                    :src="skin.imageUrl"
+                                    :alt="skin.name"
+                                    class="card-image"
+                                >
+                                    <template v-slot:placeholder>
+                                        <div class="d-flex align-center justify-center fill-height">
+                                            <v-progress-circular indeterminate color="primary" />
+                                        </div>
+                                    </template>
+                                </v-img>
+                                <div class="card-overlay"></div>
+                                <div class="card-content">
+                                    <h3 class="skin-name">{{ skin.name }}</h3>
+                                    <v-btn
+                                        class="add-btn mt-3"
+                                        variant="flat"
+                                        block
+                                        @click="addToWardrobe(skin.id)"
+                                    >
+                                        <v-icon start>mdi-plus</v-icon>
+                                        Ajouter à ma garde-robe
+                                    </v-btn>
+                                </div>
+                                <div class="card-glow"></div>
+                            </div>
+                        </v-card>
+                    </v-lazy>
+                </v-col>
+            </v-row>
+        </div>
+
+        <!-- Snackbar for notifications -->
+        <v-snackbar
+            v-model="snackbar.show"
+            :color="snackbar.color"
+            :timeout="3000"
+            location="bottom right"
+            rounded="lg"
+        >
+            <div class="d-flex align-center">
+                <v-icon class="mr-2">
+                    {{ snackbar.color === 'success' ? 'mdi-check-circle' : 'mdi-alert-circle' }}
+                </v-icon>
+                {{ snackbar.message }}
+            </div>
+            <template v-slot:actions>
+                <v-btn variant="text" size="small" @click="snackbar.show = false">
+                    Fermer
+                </v-btn>
+            </template>
+        </v-snackbar>
+    </v-container>
 </template>
 
 <style scoped>
-    .champion-detail {
-        padding: 20px;
-        justify-content: center;
-        align-items: center;
-    }
-
-    .loading, .error {
-        text-align: center;
-        padding: 40px;
-        font-size: 1.2em;
-    }
-
-    .error {
-        color: red;
-    }
-
-    .skins-grid {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 20px;
-        margin-top: 20px;
-        justify-content: center;
-        align-items: center;
+    .text-gradient {
+        background: linear-gradient(135deg, #c9aa71 0%, #f0e6d3 50%, #c9aa71 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
     }
 
     .skin-card {
-        width: 250px;
-        border: 1px solid #ccc;
-        border-radius: 8px;
-        padding: 10px;
-        text-align: center;
-        justify-content: center;
+        border-radius: 16px;
+        overflow: hidden;
+        background: transparent;
+        transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+        border: 1px solid rgba(201, 170, 113, 0.15);
     }
 
-    .skin-card img {
-        width: 100%;
-        border-radius: 4px;
-        justify-content: center;
-        align-items: center;
+    .skin-card:hover {
+        transform: translateY(-10px);
+        border-color: rgba(201, 170, 113, 0.5);
+        box-shadow:
+            0 25px 50px rgba(0, 0, 0, 0.5),
+            0 0 40px rgba(201, 170, 113, 0.15);
+    }
+
+    .card-image-container {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .card-image {
+        transition: transform 0.6s ease;
+    }
+
+    .skin-card:hover .card-image {
+        transform: scale(1.08);
+    }
+
+    .card-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 70%;
+        background: linear-gradient(
+            to top,
+            rgba(0, 0, 0, 0.95) 0%,
+            rgba(0, 0, 0, 0.7) 30%,
+            rgba(0, 0, 0, 0.3) 60%,
+            transparent 100%
+        );
+        pointer-events: none;
+    }
+
+    .card-content {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 20px;
+        text-align: center;
     }
 
     .skin-name {
-        font-weight: bold;
-        margin: 10px 0;
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: #fff;
+        text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+        letter-spacing: 0.3px;
+        margin-bottom: 4px;
+        transition: color 0.3s ease;
+    }
+
+    .skin-card:hover .skin-name {
+        color: #c9aa71;
     }
 
     .add-btn {
-        background-color: #4CAF50;
-        color: white;
-        border: none;
-        padding: 10px 15px;
-        border-radius: 4px;
-        cursor: pointer;
-        width: 100%;
+        background: linear-gradient(135deg, #c9aa71 0%, #a08050 100%);
+        color: #1a1a2e;
+        font-weight: 600;
+        text-transform: none;
+        letter-spacing: 0.3px;
+        border-radius: 8px;
+        transition: all 0.3s ease;
     }
 
     .add-btn:hover {
-        background-color: #45a049;
+        background: linear-gradient(135deg, #d4ba82 0%, #c9aa71 100%);
+        box-shadow: 0 4px 15px rgba(201, 170, 113, 0.4);
+    }
+
+    .card-glow {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        opacity: 0;
+        background: linear-gradient(
+            135deg,
+            rgba(201, 170, 113, 0.08) 0%,
+            transparent 40%,
+            transparent 60%,
+            rgba(201, 170, 113, 0.08) 100%
+        );
+        transition: opacity 0.4s ease;
+        pointer-events: none;
+    }
+
+    .skin-card:hover .card-glow {
+        opacity: 1;
     }
 </style>

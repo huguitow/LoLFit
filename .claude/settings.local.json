@@ -7,7 +7,13 @@
       "Bash(./mvnw.cmd spring-boot:run:*)",
       "Bash(netstat:*)",
       "Bash(findstr:*)",
-      "Bash(taskkill:*)"
+      "Bash(taskkill:*)",
+      "Bash(npm install:*)",
+      "mcp__chrome-devtools__list_pages",
+      "mcp__chrome-devtools__navigate_page",
+      "mcp__chrome-devtools__take_screenshot",
+      "mcp__chrome-devtools__take_snapshot",
+      "mcp__chrome-devtools__press_key"
     ]
   }
 }
