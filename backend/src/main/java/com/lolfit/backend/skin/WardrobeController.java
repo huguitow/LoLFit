@@ -28,4 +28,12 @@ public class WardrobeController {
         List<WardrobeResponse> wardrobe = wardrobeService.getUserWardrobe(userEmail);
         return ResponseEntity.ok(wardrobe);
     }
+
+    @DeleteMapping("/{skinId}")
+    public ResponseEntity<String> removeSkinFromWardrobe(Authentication authentication,
+            @PathVariable Long skinId) {
+        String userEmail = authentication.getName();
+        wardrobeService.removeSkinFromWardrobe(userEmail, skinId);
+        return ResponseEntity.ok("Skin retiré de la garde-robe");
+    }
 }

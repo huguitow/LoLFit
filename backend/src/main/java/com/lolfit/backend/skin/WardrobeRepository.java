@@ -7,4 +7,6 @@ public interface WardrobeRepository extends JpaRepository<Wardrobe, Long> {
     List<Wardrobe> findByUserId(Long userId);
 
     boolean existsByUserIdAndSkinId(Long userId, Long skinId);
+
+    void deleteByUserIdAndSkinId(Long userId, Long skinId);
 }

@@ -1,6 +1,7 @@
 package com.lolfit.backend.skin;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import com.lolfit.backend.skin.dto.AddSkinRequest;
 import com.lolfit.backend.skin.dto.WardrobeResponse;
 import com.lolfit.backend.user.User;
@@ -54,5 +55,18 @@ public class WardrobeService {
                         .isFavorite(entry.getIsFavorite())
                         .build())
                 .toList();
+    }
+
+    @Transactional
+    public void removeSkinFromWardrobe(String userEmail, Long skinId) {
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        boolean exists = wardrobeRepository.existsByUserIdAndSkinId(user.getId(), skinId);
+        if (!exists) {
+            throw new RuntimeException("Skin not in wardrobe");
+        }
+
+        wardrobeRepository.deleteByUserIdAndSkinId(user.getId(), skinId);
     }
 }

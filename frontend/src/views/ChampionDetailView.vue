@@ -9,6 +9,7 @@
     const champion = ref(null)
     const loading = ref(true)
     const error = ref(null)
+    const wardrobeSkinIds = ref(new Set())
 
     // Snackbar state
     const snackbar = reactive({
@@ -17,9 +18,30 @@
         color: 'success'
     })
 
-    onMounted(() => {
-        fetchChampionDetails()
+    onMounted(async () => {
+        await Promise.all([fetchChampionDetails(), fetchWardrobe()])
     })
+
+    const isInWardrobe = (skinId) => {
+        return wardrobeSkinIds.value.has(skinId)
+    }
+
+    const fetchWardrobe = async () => {
+        try {
+            const response = await fetch('http://localhost:8080/api/wardrobe', {
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Bearer ' + authStore.token
+                }
+            })
+            if (response.ok) {
+                const data = await response.json()
+                wardrobeSkinIds.value = new Set(data.map(item => item.skinId))
+            }
+        } catch (err) {
+            console.error('Erreur lors de la récupération de la garde-robe :', err)
+        }
+    }
 
     const fetchChampionDetails = async () => {
         try {
@@ -57,6 +79,7 @@
             })
 
             if (response.ok) {
+                wardrobeSkinIds.value.add(skinId)
                 snackbar.message = 'Skin ajouté à votre garde-robe !'
                 snackbar.color = 'success'
                 snackbar.show = true
@@ -68,6 +91,33 @@
         } catch (err) {
             console.error('Erreur lors de l\'ajout à la garde-robe :', err)
             snackbar.message = 'Erreur lors de l\'ajout du skin'
+            snackbar.color = 'error'
+            snackbar.show = true
+        }
+    }
+
+    const removeFromWardrobe = async (skinId) => {
+        try {
+            const response = await fetch(`http://localhost:8080/api/wardrobe/${skinId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': 'Bearer ' + authStore.token
+                }
+            })
+
+            if (response.ok) {
+                wardrobeSkinIds.value.delete(skinId)
+                snackbar.message = 'Skin retiré de votre garde-robe'
+                snackbar.color = 'success'
+                snackbar.show = true
+            } else {
+                snackbar.message = 'Erreur lors du retrait du skin'
+                snackbar.color = 'error'
+                snackbar.show = true
+            }
+        } catch (err) {
+            console.error('Erreur lors du retrait de la garde-robe :', err)
+            snackbar.message = 'Erreur lors du retrait du skin'
             snackbar.color = 'error'
             snackbar.show = true
         }
@@ -151,6 +201,7 @@
                                 <div class="card-content">
                                     <h3 class="skin-name">{{ skin.name }}</h3>
                                     <v-btn
+                                        v-if="!isInWardrobe(skin.id)"
                                         class="add-btn mt-3"
                                         variant="flat"
                                         block
@@ -158,6 +209,16 @@
                                     >
                                         <v-icon start>mdi-plus</v-icon>
                                         Ajouter à ma garde-robe
+                                    </v-btn>
+                                    <v-btn
+                                        v-else
+                                        class="remove-btn mt-3"
+                                        variant="flat"
+                                        block
+                                        @click="removeFromWardrobe(skin.id)"
+                                    >
+                                        <v-icon start>mdi-minus</v-icon>
+                                        Retirer de ma garde-robe
                                     </v-btn>
                                 </div>
                                 <div class="card-glow"></div>
@@ -280,6 +341,21 @@
     .add-btn:hover {
         background: linear-gradient(135deg, #d4ba82 0%, #c9aa71 100%);
         box-shadow: 0 4px 15px rgba(201, 170, 113, 0.4);
+    }
+
+    .remove-btn {
+        background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        color: #fff;
+        font-weight: 600;
+        text-transform: none;
+        letter-spacing: 0.3px;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .remove-btn:hover {
+        background: linear-gradient(135deg, #ff6b5b 0%, #e74c3c 100%);
+        box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4);
     }
 
     .card-glow {

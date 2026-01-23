@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import com.lolfit.backend.skin.dto.ChampionSimpleDto;
 import com.lolfit.backend.skin.dto.ChampionDetailDto;
 import com.lolfit.backend.skin.dto.SkinDto;
+import com.lolfit.backend.skin.dto.SkinSearchDto;
 
 import java.util.List;
 
@@ -62,16 +63,32 @@ public class SkinController {
         }
 
         @GetMapping
-        public ResponseEntity<List<Skin>> searchSkin(@RequestParam(required = false) String search) {
+        public ResponseEntity<List<SkinSearchDto>> searchSkin(@RequestParam(required = false) String search) {
+                List<Skin> skins;
                 if (search == null || search.isEmpty()) {
-                        return ResponseEntity.ok(skinRepository.findAll().stream().limit(20).toList());
+                        skins = skinRepository.findAll().stream().limit(20).toList();
+                } else {
+                        skins = skinRepository.findAll().stream()
+                                        .filter(s -> s.getName().toLowerCase().contains(search.toLowerCase())
+                                                        || s.getChampion().getName().toLowerCase()
+                                                                        .contains(search.toLowerCase()))
+                                        .limit(20)
+                                        .toList();
                 }
-                List<Skin> found = skinRepository.findAll().stream()
-                                .filter(s -> s.getName().toLowerCase().contains(search.toLowerCase())
-                                                || s.getChampion().getName().toLowerCase()
-                                                                .contains(search.toLowerCase()))
-                                .limit(20)
+
+                List<SkinSearchDto> result = skins.stream()
+                                .map(skin -> SkinSearchDto.builder()
+                                                .id(skin.getId())
+                                                .name(skin.getName())
+                                                .imageUrl(skin.getImageUrl())
+                                                .splashArtUrl(skin.getSplashArtUrl())
+                                                .rarity(skin.getRarity())
+                                                .rpPrice(skin.getRpPrice())
+                                                .championName(skin.getChampion().getName())
+                                                .championId(skin.getChampion().getId())
+                                                .build())
                                 .toList();
-                return ResponseEntity.ok(found);
+
+                return ResponseEntity.ok(result);
         }
 }
